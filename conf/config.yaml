@@ -1,0 +1,37 @@
+# conf/config.yaml
+defaults:
+  - _self_
+  - model: unet
+  - training: default
+
+data:
+  data_dir: "Butterfly-dataset"
+  batch_size: 32
+  num_workers: 4
+  image_size: 224
+  unlabeled_ratio: 0.7
+
+wandb:
+  project: "butterfly-classification"
+  entity: null
+  mode: "online"
+
+seed: 42
+
+# conf/model/unet.yaml
+autoencoder:
+  in_channels: 3
+  latent_dim: 256
+  hidden_dims: [64, 128, 256, 512]
+
+classifier:
+  num_classes: 20
+  dropout: 0.5
+
+# conf/training/default.yaml
+training:
+  max_epochs: 50
+  early_stopping_patience: 5
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  gradient_clip_val: 1.0
