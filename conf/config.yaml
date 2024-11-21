@@ -1,37 +1,62 @@
-# conf/config.yaml
+# General configuration
 defaults:
   - _self_
-  - model: unet
-  - training: default
+  - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: disabled
 
-data:
-  data_dir: "Butterfly-dataset"
-  batch_size: 32
-  num_workers: 4
-  image_size: 224
-  unlabeled_ratio: 0.7
-
-wandb:
-  project: "butterfly-classification"
-  entity: null
-  mode: "online"
-
+# Random seed for reproducibility
 seed: 42
 
-# conf/model/unet.yaml
-autoencoder:
-  in_channels: 3
-  latent_dim: 256
-  hidden_dims: [64, 128, 256, 512]
-
-classifier:
+# Data parameters
+data:
+  data_dir: "Butterfly-dataset"
+  image_size: 224
   num_classes: 20
-  dropout: 0.5
+  batch_size: 32
+  num_workers: 4
 
-# conf/training/default.yaml
+# Model parameters
+model:
+  noise_factor: 0.1
+  dropout_rate: 0.5
+  hidden_dim: 256
+
+# Optimizer settings
+optimizer:
+  lr_autoencoder: 1e-3
+  lr_classifier: 1e-3
+  weight_decay: 1e-5
+
+# Training parameters
 training:
-  max_epochs: 50
-  early_stopping_patience: 5
-  learning_rate: 0.001
-  weight_decay: 0.0001
-  gradient_clip_val: 1.0
+  max_epochs: 100
+  early_stopping_patience: 10
+  checkpoint_monitor: "val_loss"
+  checkpoint_mode: "min"
+  log_every_n_steps: 50
+  val_check_interval: 1.0
+
+# Hardware configuration
+hardware:
+  accelerator: "gpu"
+  devices: 1
+  precision: 32
+
+# Weights & Biases configuration
+wandb:
+  project: "butterfly-classification"
+  entity: null # Set your wandb username here
+  mode: "online" # or "offline" for no logging
+  tags: ["transfer-learning", "butterflies"]
+
+# Output directories
+output:
+  base_dir: "${hydra:runtime.cwd}/outputs"
+  save_models: true
+  save_plots: true
+
+# Hydra-specific configuration
+hydra:
+  output_subdir: null
+  run:
+    dir: ${output.base_dir}/${now:%Y-%m-%d_%H-%M-%S}
